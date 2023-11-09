@@ -20,6 +20,7 @@ import Invoice from './components/Invoice';
 import FollowUp from './components/FollowUp';
 import Projection from './components/Projection';
 
+
 const MENU = [
   'usuarios',
   'estudiantes',
@@ -30,7 +31,10 @@ const MENU = [
   'proyeccion',
   'logout',
 ]
+
 const BRAND = "Crear"
+
+
 export default function App() {
 
   const [searchParams] = useSearchParams();
