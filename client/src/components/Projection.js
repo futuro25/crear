@@ -16,8 +16,6 @@ import { split, padStart, slice, range } from "lodash";
 import {config} from '../config';
 var moment = require('moment');
 
-const options = utils.getDatePickerOptions(ArrowLeftIcon, ArrowRightIcon)
-
 export default function Projection() {
 
   const API_URL_NOTIFICATIONS_NOW = '/api/notifications/add/0';
@@ -74,7 +72,7 @@ export default function Projection() {
         )
       }
       {
-        data && (
+        data && !isLoading && !isValidating && (
           <div className="flex flex-col justify-start">
             <div className="grid grid-cols-4 gap-4">
               <div className="p-4 rounded-lg shadow-lg bg-emerald-500">
