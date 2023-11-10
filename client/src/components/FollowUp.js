@@ -7,7 +7,6 @@ import Button from "./common/Button";
 import { Dialog, DialogContent } from "./common/Dialog";
 import { Pagination } from "./common/Pagination";
 import Spinner from "./common/Spinner";
-import {TestTable} from "./TestTable";
 import {TrashIcon, ChecktIcon, EyeIcon, EditIcon, CloseIcon} from "./icons";
 import { Input } from "./common/Input";
 import * as utils from '../utils/utils'

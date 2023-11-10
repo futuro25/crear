@@ -7,7 +7,6 @@ import Button from "./common/Button";
 import { Dialog, DialogContent } from "./common/Dialog";
 import { Pagination } from "./common/Pagination";
 import Spinner from "./common/Spinner";
-import {TestTable} from "./TestTable";
 import {TrashIcon, ChecktIcon, EyeIcon, ReceiptIcon, CloseIcon} from "./icons";
 import { Input } from "./common/Input";
 import * as utils from '../utils/utils'
@@ -229,95 +228,7 @@ export default function Billings() {
         )
       }
       {
-        stage === 'TEST' && (
-          <TestTable />
-        )
-      }
-      {
         stage === 'LIST' && data && !isValidating && (
-          // <div className="my-4 min-w-[1000px] overflow-x-auto">
-          //   <div className="not-prose relative bg-slate-50 rounded-xl overflow-hidden dark:bg-slate-800/25">
-          //     <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]" style={{"backgroundPosition": "10px 10px"}}></div>
-          //     <div className="relative rounded-xl overflow-x-auto">
-          //       <div className="shadow-sm overflow-hidden my-8">
-          //         <table className="border-collapse table-fixed w-full text-sm">
-          //           <thead>
-          //             <tr>
-          //               <th className="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Nro de Factura</th>
-          //               <th className="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Periodo</th>
-          //               <th className="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Concepto</th>
-          //               <th className="border-b dark:border-slate-600 font-medium p-4 pr-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Estudiante</th>
-          //               <th className="border-b dark:border-slate-600 font-medium p-4 pr-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Importe</th>
-          //               <th className="border-b dark:border-slate-600 font-medium p-4 pr-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Acciones</th>
-          //             </tr>
-          //           </thead>
-          //           <tbody className="bg-white dark:bg-slate-800">
-          //             {
-          //               dataFiltered.length ?
-          //                 slice(dataFiltered, desde, hasta).map((billing) => (
-          //                   <tr key={billing._id}>
-          //                     <td className="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{billing.invoiceNumber}</td>
-          //                     <td className="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{getPeriod(billing.period)}</td>
-          //                     <td className="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{billing.concept}</td>
-          //                     <td className="border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">{billing.student}</td>
-          //                     <td className="border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">${billing.invoiceAmount}</td>
-          //                     <td className="border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 w-10">
-          //                       <div className="flex gap-4">
-          //                         <button className="flex items-center justify-center w-8 h-8" title="Ver detalle" onClick={() => onView(billing._id)}><EyeIcon/></button>
-          //                         {
-          //                           !!billing.receiptNumber ? (
-          //                             // <button className="flex items-center justify-center w-8 h-8" title="Agregar Recibo" onClick={() => onAddReceipt(billing._id)}><ReceiptIcon/></button>
-          //                             <button className="flex items-center justify-center w-8 h-8" title="Ver Recibo" onClick={() => onViewReceipt(billing._id)}><ReceiptIcon/></button>
-          //                           ) : (
-          //                             <button className="flex items-center justify-center w-8 h-8" title="Agregar Recibo" onClick={() => onAddReceipt(billing._id)}><ReceiptIcon/></button>
-          //                           )
-          //                         }
-          //                         <button className="flex items-center justify-center w-8 h-8" title="Eliminar" onClick={() => removeBilling(billing._id)}><TrashIcon/></button>
-          //                       </div>
-          //                     </td>
-          //                   </tr>
-          //                 ))
-          //                 :
-          //                 (
-          //                   <tr>
-          //                     <td colSpan={6} className="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">No data</td>
-          //                   </tr>
-          //                 )
-          //             }
-          //           </tbody>
-          //         </table>
-          //       </div>
-          //     </div>
-          //     <div className="absolute inset-0 pointer-events-none border border-black/5 rounded-xl dark:border-white/5"></div>
-          //   </div>
-
-          //   <div className="flex gap-2 justify-center items-center p-4">
-          //     <Pagination onChange={(page) => {setCurrentPage(page); console.log(page)}} totalPages={totalPages} currentPage={currentPage} />
-          //   </div>
-
-          //   <Dialog
-          //     open={isModalOpen}
-          //   >
-          //     <DialogContent>
-          //       <div className="w-[500px] h-[400px]">
-          //         <div className="flex justify-end items-center text-gray-500">
-          //           <button onClick={() => setIsModalOpen(false)}>
-          //             <CloseIcon />
-          //           </button>
-          //         </div>
-          //         <div className="flex justify-center items-center w-full">
-          //           {
-          //             getReceiptInfo()
-          //           }
-          //         </div>
-          //       </div>
-          //       <div className="flex gap-2 justify-center items-center">
-          //         <Button onClick={() => setIsModalOpen(false)}>Close</Button>
-          //       </div>
-          //     </DialogContent>
-          //   </Dialog>
-          // </div>
-
           <div className="flex flex-col overflow-x-auto">
             <div className="sm:-mx-6 lg:-mx-8">
               <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
