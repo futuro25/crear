@@ -48,7 +48,6 @@ try {
   console.log('Connection error!', JSON.stringify(e))
 }
 
-const port = 3001;
-app.listen(port);
+app.listen(process.env.PORT || 5000);
 
-console.log(`App running and listening on ${port}`);
+console.log('App running and listening on 5000');
