@@ -45,7 +45,8 @@ export default function App() {
   if (user === null) {
     return (
       <Routes>
-        <Route path="/" element={<Login />}>
+        <Route path="/">
+          <Route index element={<Login />} />
           <Route path="login" element={<Login />} />
           <Route path="invite" element={<Invite inviteId={inviteId} />} />
           <Route path="logout" element={<Logout />} />

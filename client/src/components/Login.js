@@ -2,12 +2,14 @@ import { useNavigate } from "react-router-dom";
 import React, {useState} from "react";
 import useSWR from 'swr'
 import Button from "./common/Button";
+import {EyeIcon} from './icons'
 import md5 from 'md5'
 import { useForm } from "react-hook-form";
 
 export default function Login() {
   const API_URL = '/api/users';
   const [errorLogin, setErrorLogin] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const { data, error, isLoading } = useSWR(API_URL, (url) => fetch(url).then(res => res.json()))
   const navigate = useNavigate();
@@ -41,7 +43,12 @@ export default function Login() {
                 <form onSubmit={handleSubmit(onSubmit)} className='w-full flex flex-col'>
                   <input type="text" {...register("username", { required: true })} className="mt-2 rounded border border-slate-200 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400" />
                   {errors.username && <span className='px-2 text-red-500'>* Obligatorio</span>}
-                  <input type="password" {...register("password", { required: true })} className="mt-2 rounded border border-slate-200 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400" />
+                  <div className="flex">
+                    <input type={isPasswordVisible ? "text" : "password"} {...register("password", { required: true })} className="mt-2 w-full rounded border border-slate-200 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400" />
+                    <div className="relative mt-8 -ml-5 right-2.5	text-gray-900 cursor-pointer" onClick={() => setIsPasswordVisible(!isPasswordVisible)}>
+                      <EyeIcon className="w-4 h-4" />
+                    </div>
+                  </div>
                   {errors.password && <span className='px-2 text-red-500'>* Obligatorio</span>}
                   <Button className="mt-2">Login</Button>
                   {errorLogin && <span className='p-2 text-red-500'>{errorLogin}</span>}
