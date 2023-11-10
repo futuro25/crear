@@ -74,7 +74,7 @@ export default function Projection() {
       {
         data && !isLoading && !isValidating && (
           <div className="flex flex-col justify-start">
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid gap-4 place-content-center grid-cols-[repeat(auto-fill,300px)] auto-rows-[124px]">
               <div className="p-4 rounded-lg shadow-lg bg-emerald-500">
                 <p className="text-2xl font-bold text-white">Hoy</p>
                 <p className="text-2xl font-bold text-white">{utils.formatPriceSimbol(totalNow)}</p>

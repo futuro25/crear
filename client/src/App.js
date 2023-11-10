@@ -1,4 +1,4 @@
-import {NavLink, Route, Routes, Outlet, useSearchParams} from 'react-router-dom';
+import {NavLink, Navigate, Route, Routes, Outlet, useSearchParams, useLocation} from 'react-router-dom';
 import { BrowserView, MobileView, isBrowser, isMobile } from 'react-device-detect';
 
 import React, {useState} from "react";
@@ -41,17 +41,21 @@ export default function App() {
 
   const user = sessionStorage.username || null;
   const inviteId = searchParams.get("inviteId") || null;
+  const location = useLocation();
+
+
+  if (user === undefined) {
+    return null;
+  }
 
   if (user === null) {
     return (
       <Routes>
-        <Route path="/">
-          <Route index element={<Login />} />
-          <Route path="login" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="invite" element={<Invite inviteId={inviteId} />} />
-          <Route path="logout" element={<Logout />} />
-        </Route>
+        <Route path="*" element={<Navigate to="/login" state={{referrer: location.pathname}} />} />
+        <Route path="login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="invite" element={<Invite inviteId={inviteId} />} />
+        <Route path="logout" element={<Logout />} />
       </Routes>
     )
   }
