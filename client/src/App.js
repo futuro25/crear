@@ -75,21 +75,19 @@ export default function App() {
           <Route
             path="*"
             element={
-              <div className="App">
-                <header className="App-header">
-                  <img src={logo} className="App-logo" alt="logo" />
-                  <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                  </p>
-                  <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Learn React
-                  </a>
-                </header>
+              <div class="bg-gray-900">
+                <div class="w-9/12 m-auto py-16 min-h-screen flex items-center justify-center">
+                  <div class="bg-white shadow overflow-hidden sm:rounded-lg pb-8">
+                    <div class="border-t border-gray-200 text-center pt-8">
+                      <h1 class="text-9xl font-bold text-gray-400">404</h1>
+                      <h1 class="text-6xl font-medium py-8">Pagina no encontrada</h1>
+                      <p class="text-2xl pb-8 px-12 font-medium">Ups! La pagina que esta buscando no existe. Vuelva al inicio haciendo click en el boton.</p>
+                      <button class="bg-gray-900 hover:from-pink-500 hover:to-orange-500 text-white font-semibold px-6 py-3 rounded-md mr-6" onClick={() => window.location.assign('/')}>
+                        IR AL INICIO
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             }
           />
@@ -112,7 +110,7 @@ function Layout({children}) {
   return (
     <div className="flex flex-col w-full h-screen text-gray-700">
       <nav className="flex justify-between items-center pr-6 w-full h-16 bg-gray-900 text-white">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center cursor-pointer" onClick={() => window.location.assign('/')}>
           <h1 className="inline-block text-2xl sm:text-3xl text-white pl-2 tracking-tight dark:text-slate-200">Instituto Crear</h1>
           {/* <img src={logo} className='w-[180px]' alt="logo" /> */}
           {/* <img src={logo2} alt="logo" className="ml-4 w-14 h-14 rounded-full object-cover" /> */}
