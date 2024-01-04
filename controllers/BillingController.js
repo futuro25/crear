@@ -2,12 +2,23 @@
 
 const logger      = require('../utils/logger');
 const Billing        = require('../models/billing.model');
+const Courses        = require('../models/course.model');
+const Students        = require('../models/student.model');
 const self        = {};
 
 self.createBilling = async (req, res) => {  
   try {
     const billings = [];
     console.log(req.body.students)
+
+    const receipts = [{
+      'receiptNumber': req.body.receiptNumber,
+      'receiptAmount': req.body.receiptAmount,
+      'receiptDate': req.body.receiptDate,
+      'bankName': req.body.bankName,
+      'paymentReceiptNumber': req.body.paymentReceiptNumber,
+      'paymentDetail': req.body.paymentDetail,
+    }];
 
     if (typeof req.body.students === 'string') {
       const billing = {
@@ -20,9 +31,7 @@ self.createBilling = async (req, res) => {
         'concept': req.body.concept,
         'details': req.body.details,
         'period': req.body.period,
-        'receiptNumber': req.body.receiptNumber,
-        'receiptAmount': req.body.receiptAmount,
-        'receiptDate': req.body.receiptDate,
+        'receipts': receipts,
         'rememberDate': req.body.rememberDate,
         'student': req.body.students,
       }
@@ -41,9 +50,7 @@ self.createBilling = async (req, res) => {
           'concept': req.body.concept,
           'details': req.body.details,
           'period': req.body.period,
-          'receiptNumber': req.body.receiptNumber,
-          'receiptAmount': req.body.receiptAmount,
-          'receiptDate': req.body.receiptDate,
+          'receipts': receipts,
           'rememberDate': req.body.rememberDate,
           'student': student,
         }
@@ -95,7 +102,6 @@ self.getBillingsNotifications = async (req, res) => {
       billings = await Billing.find({deletedAt: null, rememberDate: {$gte: rememberDateFrom, $lt: rememberDateTo}});
     }
 
-    logger.info('get billings', JSON.stringify(billings))
     res.json(billings);
   } catch (e) {
     logger.error('get billings', e.message)
@@ -106,6 +112,7 @@ self.getBillingsNotifications = async (req, res) => {
 self.getAllBillingsNotifications = async (req, res) => {  
   try {
     const billings = await Billing.find({deletedAt: null});
+
     logger.info('get billings', JSON.stringify(billings))
     res.json(billings);
   } catch (e) {

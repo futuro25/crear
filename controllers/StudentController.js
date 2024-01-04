@@ -2,6 +2,9 @@
 
 const logger     = require('../utils/logger');
 const Student    = require('../models/student.model');
+const Courses    = require('../models/course.model');
+const Students    = require('../models/student.model');
+const Insurances    = require('../models/insurance.model');
 const uploadImage = require('../utils/utils');
 const utilsController = require('./UtilsController');
 const self       = {};
@@ -32,10 +35,30 @@ self.createStudent = async (req, res) => {
 
 self.getStudents = async (req, res) => {  
   try {
+    const studentsUpdated = []
     const students = await Student.find({deletedAt: null});
 
-    logger.info('get students', JSON.stringify(students))
-    res.json(students);
+    for (const student of students) {
+      studentsUpdated.push({
+        ...student, 
+        healthInsuranceName: 'OSDE',
+        _id: student._id,
+        name: student.name,
+        course: student.course,
+        createdAt: student.createdAt,
+        cudDueDate: student.cudDueDate,
+        cudUrl: student.cudUrl,
+        deletedAt: student.deletedAt,
+        documentNumber: student.documentNumber,
+        email: student.email,
+        healthInsurance: student.healthInsurance,
+        lastName: student.lastName,
+        updatedAt: student.updatedAt,
+      })
+    }
+
+    logger.info('get students', JSON.stringify(studentsUpdated))
+    res.json(studentsUpdated);
   } catch (e) {
     logger.error('get students', e.message)
     res.json({error: e.message})
@@ -102,5 +125,29 @@ self.getStudentsFunction = async () => {
     return {error: e.message}
   }
 };
+
+self.getAllStaff = async (req, res) => {
+
+  try {
+    const students = await Students.find({deletedAt: null}, {__v: false});
+    const courses = await Courses.find({deletedAt: null});
+    const insurances = await Insurances.find({deletedAt: null});
+    const staffList = []
+
+    for (const student of students) {
+      staffList.push({
+        ...student.toObject(), 
+        insuranceName: insurances.find(i => i._id.toString() === student.healthInsurance.toString()).name || '',
+        courses: courses.find(i => i._id.toString() === student.course.toString()).name || '',
+      })
+    }
+
+    logger.info('getting full staff list', staffList.length)
+    res.json(staffList);
+  } catch (e) {
+    logger.error('Error getting all staff', e.message)
+    res.json({error: e.message})
+  }
+}
 
 module.exports = self;

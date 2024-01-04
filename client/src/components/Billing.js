@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import React, {useState} from "react";
+import React, {useState, useRef, useEffect} from "react";
 import { Controller, useForm } from "react-hook-form";
 import useSWR from 'swr'
 import {useSWRConfig} from 'swr'
@@ -25,28 +25,33 @@ export default function Billings() {
   const API_URL_COURSES = '/api/courses';
   const API_URL_INSURANCES = '/api/insurances';
   const API_URL_RECEIPT = '/api/receipt';
+  const API_URL_WITHHOLDING = '/api/withholdings';
   const [stage, setStage] = useState('LIST');
   const [currentPage, setCurrentPage] = useState(1);
   const [show, setShow] = useState(false)
   const [billingIdForReceipt, setBillingIdForReceipt] = useState();
   const [search, setSearch] = useState('');
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+  const [isWithholdingsVisible, setIsWithholdingsVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBilling, setSelectedBilling] = useState(null);
-  const { register, handleSubmit, trigger, control, reset, formState: { errors } } = useForm();
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const { register, handleSubmit, trigger, control, watch, reset, formState: { errors } } = useForm();
   const { data, error, isLoading, isValidating } = useSWR(API_URL, (url) => fetch(url).then(res => res.json()))
   const {data: dataStudents} = useSWR(API_URL_STUDENTS, (url) => fetch(url).then(res => res.json()))
   const {data: dataCourses} = useSWR(API_URL_COURSES, (url) => fetch(url).then(res => res.json()))
   const {data: dataInsurances} = useSWR(API_URL_INSURANCES, (url) => fetch(url).then(res => res.json()))
+  const {data: dataWithholdings} = useSWR(API_URL_WITHHOLDING, (url) => fetch(url).then(res => res.json()))
 
   const dataFiltered = data && data?.length > 0 && data?.filter((d) => search ? d.student.toLowerCase().includes(search.toLowerCase()) || d.invoiceNumber.toLowerCase().includes(search.toLowerCase()) : d);
+  
+  const dataStudentsFiltered = dataStudents && dataStudents?.length > 0 && dataStudents?.filter((d) => search ? d.name.toLowerCase().includes(search.toLowerCase()) || d.lastName.toLowerCase().includes(search.toLowerCase()) || d.healthInsuranceName.toLowerCase().includes(search.toLowerCase()) : d);
 
   const rowsPerPage = 6;
   const totalPages = Math.round(dataFiltered?.length / rowsPerPage)+1;
 
   const desde = (currentPage * rowsPerPage) - rowsPerPage;
   const hasta = currentPage * rowsPerPage;
-
 
   const { mutate } = useSWRConfig()
   const navigate = useNavigate();
@@ -85,12 +90,18 @@ export default function Billings() {
       console.log('receipt', receipt)
       const receiptNumber = receipt.data.FeDetResp.FECAEDetResponse[0].CbteDesde;
       const body = {
-        receiptNumber: padStart(config.receipt.sellPoint, 5, '0') + "-" + padStart(receiptNumber, 6, '0'),
-        receiptAmount: receiptAmountNumber,
-        receiptDate: formData.receiptDate,
+        receipts: [{
+          receiptNumber: padStart(config.receipt.sellPoint, 5, '0') + "-" + padStart(receiptNumber, 6, '0'),
+          receiptAmount: receiptAmountNumber,
+          receiptDate: formData.receiptDate,
+          bankName: formData.bankName,
+          paymentReceiptNumber: formData.paymentReceiptNumber,
+          paymentDetail: formData.paymentDetail,
+        }]
       }
       const update = await mutate(API_URL, utils.patchRequest(`${API_URL}/${billingIdForReceipt}`, body), {optimisticData: true})
-      console.log('update', update)
+      reset();
+      setIsWithholdingsVisible(false);
       setStage('LIST')
     }catch(e){
 
@@ -131,9 +142,11 @@ export default function Billings() {
         receiptNumber: null,
         receiptAmount: null,
         receiptDate: null,
-        rememberDate: formData.rememberDate,
+        rememberDate: dataInsurances.find(insurance => insurance._id === formData.insurance).daysForPayment,
         students: formData.students,
       }
+
+      console.log(body)
 
       await mutate(API_URL, utils.postRequest(API_URL, body), {optimisticData: true})
       setIsLoadingSubmit(false)
@@ -152,12 +165,17 @@ export default function Billings() {
     setStage('RECEIPT')
   }
 
+  const getInsuranceName = (insuranceId) => {
+    return dataInsurances ? dataInsurances.find(insurance => insurance._id === insuranceId)?.name || "" : "";
+  }
+
   const onCreate = () => {
     setSelectedBilling(null);
-    setStage('CREATE')
+    setStage('SELECT_STUDENTS')
   }
   
   const onCancel = () => {
+    setIsWithholdingsVisible(false);
     setSelectedBilling(null);
     reset()
     setStage('LIST')
@@ -189,10 +207,23 @@ export default function Billings() {
     )
   }
 
-  const getStudentName = (studentId) => {
-    const student = dataStudents ? dataStudents.find(student => student._id === studentId) : "";
-    return student?.name + " " + student?.lastName;
+  const onCheckboxChange = (e) => {
+    if (e.target.checked) {
+      setSelectedStudents([...selectedStudents, e.target.value]);
+    } else {
+      setSelectedStudents(selectedStudents.filter(student => student !== e.target.value))
+    }
+    console.log(selectedStudents)
   }
+
+  const onSelectAll = () => {
+    setSelectedStudents(dataStudentsFiltered.map(s => s._id));
+  }
+
+  const onUnselectAll = () => {
+    setSelectedStudents([]);
+  }
+  
 
   const getPeriod = (period) => {
     const data = split(period, " ");
@@ -206,9 +237,18 @@ export default function Billings() {
         <Button variant="alternative" className="ml-auto" onClick={() => onCreate()}>Crear</Button>
       </div>
       {
-        stage === 'LIST' && (
+        (stage === 'LIST' || stage === 'SELECT_STUDENTS') && (
           <div className="w-full flex bg-white rounded pb-4">
-            <Input rightElement={<div className="cursor-pointer" onClick={() => setSearch('')}>{search && <CloseIcon />}</div>} type="text" value={search} name="search" id="search" placeholder="Buscador..." onChange={(e) => setSearch(e.target.value)} />
+            <Input autoComplete="false" rightElement={<div className="cursor-pointer" onClick={() => setSearch('')}>{search && <CloseIcon />}</div>} type="text" value={search} name="search" id="search" placeholder="Buscador..." onChange={(e) => setSearch(e.target.value)} />
+          </div>
+        )
+      }
+
+      {
+        (stage === 'SELECT_STUDENTS') && (
+          <div className="w-full align-right ml-auto">
+            <Button variant="outlined" className="ml-auto" onClick={() => onSelectAll()}>Seleccionar</Button>
+            <Button variant="outlined" className="ml-auto" onClick={() => onUnselectAll()}>Deseleccionar</Button>
           </div>
         )
       }
@@ -241,7 +281,7 @@ export default function Billings() {
                         <th scope="col" className="px-6 py-4">Concepto</th>
                         <th scope="col" className="px-6 py-4">Estudiante</th>
                         <th scope="col" className="px-6 py-4">Importe</th>
-                        <th scope="col" className="px-6 py-4">Recibo Nro</th>
+                        {/* <th scope="col" className="px-6 py-4">Recibo Nro</th> */}
                         <th scope="col" className="px-6 py-4">Acciones</th>
                       </tr>
                     </thead>
@@ -255,11 +295,11 @@ export default function Billings() {
                               <td className="whitespace-nowrap px-6 py-4">{billing.concept}</td>
                               <td className="whitespace-nowrap px-6 py-4">{billing.student}</td>
                               <td className="whitespace-nowrap px-6 py-4">${billing.invoiceAmount}</td>
-                              <td className="whitespace-nowrap px-6 py-4">{billing.receiptNumber}</td>
+                              {/* <td className="whitespace-nowrap px-6 py-4">{billing.receiptNumber}</td> */}
                               <td className="whitespace-nowrap px-6 py-4">
                                 <div className="flex gap-4">
                                   {
-                                    !billing.receiptNumber ? (
+                                    billing.receipts.length > 0 ? (
                                       <button className="flex items-center justify-center w-8 h-8" title="Agregar Recibo" onClick={() => onAddReceipt(billing._id)}><ReceiptIcon/></button>
                                     ) : (
                                       <button className="flex items-center justify-center w-8 h-8" title="Ver Recibo" onClick={() => onViewReceipt(billing._id)}><ChecktIcon/></button>
@@ -294,7 +334,7 @@ export default function Billings() {
                       <CloseIcon />
                     </button>
                   </div>
-                  <h1 class="inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200 pl-4 pb-4">Recibo</h1>
+                  <h1 className="inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200 pl-4 pb-4">Recibo</h1>
                   <div className="flex justify-center items-center w-full">
                     {
                       getReceiptInfo()
@@ -306,7 +346,56 @@ export default function Billings() {
                 </div>
               </DialogContent>
             </Dialog>
+          </div>
+        )
+      }
 
+      {
+        stage === 'SELECT_STUDENTS' && (
+          <div className="flex flex-col overflow-x-auto">
+            <div className="sm:-mx-6 lg:-mx-8">
+              <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+                <div className="overflow-x-auto rounded-xl border">
+                  <table className="min-w-full text-left text-sm font-light rounded-xl">
+                    <thead className="border-b font-medium dark:border-neutral-500 bg-slate-50 rounded-xl">
+                      <tr className="text-slate-400">
+                        <th scope="col" className="px-6 py-4">Nro de Factura</th>
+                        <th scope="col" className="px-6 py-4">Periodo</th>
+                        <th scope="col" className="px-6 py-4">Concepto</th>
+                        <th scope="col" className="px-6 py-4">Estudiante</th>
+                        <th scope="col" className="px-6 py-4">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        dataStudentsFiltered.length ? 
+                          dataStudentsFiltered.map((student) => (
+                            <tr className="border-b last:border-b-0 dark:border-neutral-500">
+                              <td className="whitespace-nowrap px-6 py-4 font-medium">{student.name}</td>
+                              <td className="whitespace-nowrap px-6 py-4">{student.lastName}</td>
+                              <td className="whitespace-nowrap px-6 py-4">{student.course}</td>
+                              <td className="whitespace-nowrap px-6 py-4">{student.healthInsuranceName}</td>
+                              <td className="whitespace-nowrap px-6 py-4">
+                                <input type="checkbox" value={student._id} onChange={onCheckboxChange} checked={selectedStudents.includes(student._id)} />
+                              </td>
+                            </tr>
+                          )) : (
+                            <tr className="border-b last:border-b-0 dark:border-neutral-500">
+                              <td colSpan={5} className="whitespace-nowrap px-6 py-4 font-medium">Sin registros</td>
+                            </tr>
+                          )
+                        }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="flex gap-2 justify-end items-center p-4">
+                <Button variant="destructive" onClick={() => setStage('LIST')}>Cancelar</Button>
+                <Button onClick={() => setStage('CREATE')}>Continuar</Button>
+              </div>
+            </div>
           </div>
         )
       }
@@ -325,24 +414,15 @@ export default function Billings() {
                         <tr>
                           <td>
                             <div className="p-4 gap-4 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold">Estudiante:</label>
+                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold">Estudiantes:</label>
                               {
-                                <div className="h-[200px] border border-slate-200 overflow-hidden p-4 rounded w-[300px]">
+                                <div className="overflow-hidden p-4 rounded w-[300px]">
                                   <div className="h-full bg-white flex flex-col items-start justify-start gap-2 overflow-auto">
                                     {
                                       dataStudents.map((student) => {
-                                        return (
-                                          <div className="flex gap-2">
-                                            <input
-                                              name="students"
-                                              type="checkbox"
-                                              id={student._id}
-                                              value={student.name + " " + student.lastName}
-                                              {...register("students", { required: 'Please select students' })}
-                                            />
-                                            <label className="w-full" htmlFor={student._id}>{`${student.name} ${student.lastName}`}</label>
-                                          </div>
-                                        )
+                                        if(selectedStudents.includes(student._id)) {
+                                          return (<div className="flex gap-2">{student.name + " " + student.lastName}</div>)
+                                        }
                                       })
                                     }
                                   </div>
@@ -391,8 +471,13 @@ export default function Billings() {
                                 <select defaultValue={selectedBilling?.course || ''} {...register("course", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">
                                   <option value="" disabled>Select</option>
                                   {
+                                    (watch('year') === undefined && watch('month') === undefined) ? 
                                     dataCourses && dataCourses.map(course => 
-                                      <option key={course._id} value={course._id}>{course.name + ' $' + course.price}</option>
+                                      <option key={course._id} value={course._id}>{course.name + " " + course.month + "/" + course.year + ' $' + course.price}</option>
+                                    )
+                                    :
+                                    dataCourses && dataCourses.filter(course => course.year === watch('year').toString() && course.month === watch('month').toString()).map(course => 
+                                      <option key={course._id} value={course._id}>{course.name + " " + course.month + "/" + course.year + ' $' + course.price}</option>
                                     )
                                   }
                                 </select>
@@ -432,33 +517,6 @@ export default function Billings() {
                             </div>
                           </td>
                         </tr>
-                        {/* ================ */}
-                        <tr>
-                          <td>
-                            <div className="p-4 gap-4 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Recordatorio:</label>
-                              {
-                                <Controller
-                                  control={control}
-                                  rules={{required: selectedBilling?.rememberDate ? false : true}}
-                                  value={selectedBilling?.rememberDate}
-                                  onChange={(data) => {console.log(data)}}
-                                  name="rememberDate"
-                                  render={({ field: { onChange} }) => {
-                                    // options.defaultDate = selectedBilling?.rememberDate ? new Date(selectedBilling?.rememberDate) : "";
-                                    options.defaultDate = null;
-                                    return (
-                                      <div className="w-48">
-                                        <Datepicker options={options} onChange={onChange} show={show} setShow={handleClose} />
-                                      </div>
-                                  )}}
-                                />
-                              }
-                              {errors.rememberDate && <span className='px-2 text-red-500'>* Obligatorio</span>}
-                            </div>
-                          </td>
-                        </tr>
-                        {/* ================ */}
                         <tr>
                           <td>
                             <div className="p-4 gap-4 flex items-center">
@@ -496,7 +554,7 @@ export default function Billings() {
                         <tr>
                           <td>
                             <div className="p-4 gap-4 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold">Fecha de recibo:</label>
+                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold text-left">Fecha de recibo:</label>
                               {
                                 <Controller
                                   control={control}
@@ -521,21 +579,7 @@ export default function Billings() {
                         <tr>
                           <td>
                             <div className="p-4 gap-4 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold">Nro de Recibo:</label>
-                              {
-                                <div className="flex gap-2">
-                                  <input {...register("receiptNumber", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" />
-                                </div>
-                              }
-                              {(errors.receiptNumber) && <span className='px-2 text-red-500'>* Obligatorio</span>}
-                            </div>
-                          </td>
-                        </tr>
-                        {/* ================ */}
-                        <tr>
-                          <td>
-                            <div className="p-4 gap-4 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold">Importe:</label>
+                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold text-left">Importe:</label>
                               {
                                 <div className="flex gap-2">
                                   <input {...register("receiptAmount", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" />
@@ -545,6 +589,87 @@ export default function Billings() {
                             </div>
                           </td>
                         </tr>
+                        {/* ================ */}
+                        <tr>
+                          <td>
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold text-left">Banco:</label>
+                              {
+                                <div className="flex gap-2">
+                                  <input {...register("bankName", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" />
+                                </div>
+                              }
+                              {(errors.bankName) && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+                        {/* ================ */}
+                        <tr>
+                          <td>
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-24 font-bold text-left">Nro de Comprobante:</label>
+                              {
+                                <div className="flex gap-2">
+                                  <input {...register("paymentReceiptNumber", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" />
+                                </div>
+                              }
+                              {(errors.paymentReceiptNumber) && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+                        {/* ================ */}
+                        <tr>
+                          <td>
+                          <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold text-left">Forma de Pago:</label>
+                              {
+                                <select defaultValue={''} {...register("paymentDetail", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">
+                                  <option value="" disabled>Seleccionar</option>
+                                    <option key={'1'} value={'Efectivo'}>{'Efectivo'}</option>
+                                    <option key={'2'} value={'Cheque'}>{'Cheque'}</option>
+                                    <option key={'3'} value={'Deposito'}>{'Deposito'}</option>
+                                </select>
+                              }
+                              {errors.paymentDetail && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+                        {/* ================ */}
+                        <tr>
+                          <td><div className="cursor-pointer" onClick={() => setIsWithholdingsVisible(!isWithholdingsVisible)}>
+                            {!isWithholdingsVisible ? 'Ver retenciones' : 'Ocultar retenciones'}
+                          </div></td>
+                        </tr>
+                        {/* ================ */}
+                        {/* ================ */}
+                        {/* ================ */}
+                        {/* TEEESSSSTTTT */}
+                        {
+                          isWithholdingsVisible && (
+                            dataWithholdings.map((withholding, index) => {
+                              const fieldName = `withholdingName1${index}`;
+                              return (<tr>
+                                  <td>
+                                    <div className="p-4 gap-4 flex items-center">
+                                      <label className="text-slate-500 dark:text-slate-400 w-24 font-bold text-left">{`${withholding.name}:`}</label>
+                                      {
+                                        <div className="flex gap-2">
+                                          <input defaultValue={0} {...register(fieldName, { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" />
+                                        </div>
+                                      }
+                                    </div>
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          )
+                        }
+                            
+                        {/* TEEESSSSTTTT */}
+                        {/* ================ */}
+                        {/* ================ */}
+                        {/* ================ */}
+
                         {/* ================ */}
                         <tr>
                           <td>

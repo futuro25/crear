@@ -19,6 +19,7 @@ import Billing from './components/Billing';
 import Invoice from './components/Invoice';
 import FollowUp from './components/FollowUp';
 import Projection from './components/Projection';
+import Withholdings from './components/Withholdings';
 
 
 const MENU = [
@@ -26,6 +27,7 @@ const MENU = [
   'estudiantes',
   'coberturas',
   'cursos',
+  'retenciones',
   'facturacion',
   'seguimiento',
   'proyeccion',
@@ -69,6 +71,7 @@ export default function App() {
             <Route path="estudiantes" element={<Students />} />
             <Route path="coberturas" element={<Insurances />} />
             <Route path="cursos" element={<Courses />} />
+            <Route path="retenciones" element={<Withholdings />} />
             <Route path="facturacion" element={<Billing />} />
             <Route path="seguimiento" element={<FollowUp />} />
             <Route path="proyeccion" element={<Projection />} />

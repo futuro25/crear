@@ -173,10 +173,10 @@ export default function Users() {
                         dataFiltered.length ?
                         dataFiltered.map((user) => (
                             <tr key={user._id}>
-                              <td className="border-b border-slate-100 dark:border-slate-700 p-4  text-slate-500 dark:text-slate-400">{user.name}</td>
-                              <td className="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{user.lastName}</td>
-                              <td className="border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">{user.username}</td>
-                              <td className="border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 w-10">
+                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4  text-slate-500 dark:text-slate-400">{user.name}</td>
+                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{user.lastName}</td>
+                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">{user.username}</td>
+                              <td className="text-left border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 w-10">
                                 <div className="flex gap-2">
                                   <button className="flex items-center justify-center w-8 h-8" title="Ver detalle" onClick={() => onView(user._id)}><EyeIcon/></button>
                                   <button className="flex items-center justify-center w-8 h-8" title="Copiar Invitacion" onClick={() => onCopy(user._id)}>

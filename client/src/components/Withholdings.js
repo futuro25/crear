@@ -8,13 +8,13 @@ import Spinner from "./common/Spinner";
 import {EditIcon, TrashIcon, EyeIcon} from "./icons";
 import * as utils from '../utils/utils'
 
-export default function Courses() {
+export default function Withholdings() {
 
-  const API_URL = '/api/courses';
+  const API_URL = '/api/withholdings';
   const [stage, setStage] = useState('LIST');
   const [viewOnly, setViewOnly] = useState(false);
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedWithholding, setSelectedWithholding] = useState(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const { data, error, isLoading, isValidating } = useSWR(API_URL, (url) => fetch(url).then(res => res.json()))
   const currentYear = new Date().getFullYear();
@@ -23,10 +23,10 @@ export default function Courses() {
 
   if (error) console.log(error)
 
-  const removeCourse = async (courseId) => {
-    if (window.confirm("Seguro desea eliminar este tipo de escolaridad?")) {
+  const removeWithholding = async (withholdingId) => {
+    if (window.confirm("Seguro desea eliminar este tipo de retencion?")) {
       try {
-        await mutate(API_URL, utils.deleteRequest(`${API_URL}/${courseId}`), {optimisticData: true})
+        await mutate(API_URL, utils.deleteRequest(`${API_URL}/${withholdingId}`), {optimisticData: true})
       } catch (e) {
         console.log(e);
       }
@@ -36,40 +36,40 @@ export default function Courses() {
   const onSubmit = async (data) => {
     try {
       setIsLoadingSubmit(true)
-      if (selectedCourse) {
-        await mutate(API_URL, utils.patchRequest(`${API_URL}/${selectedCourse._id}`, data), {optimisticData: true})
+      if (selectedWithholding) {
+        await mutate(API_URL, utils.patchRequest(`${API_URL}/${selectedWithholding._id}`, data), {optimisticData: true})
       }else{
         await mutate(API_URL, utils.postRequest(API_URL, data), {optimisticData: true})
       }
       setIsLoadingSubmit(false)
-      setSelectedCourse(null)
+      setSelectedWithholding(null)
       setStage('LIST')
     } catch (e) {
       console.log(e);
     }
   }
 
-  const onEdit = (courseId) => {
+  const onEdit = (withholdingId) => {
     reset()
-    const course = data.find(course => course._id === courseId) || null;
-    setSelectedCourse(course);
+    const withholding = data.find(withholding => withholding._id === withholdingId) || null;
+    setSelectedWithholding(withholding);
     setStage('CREATE')
   }
 
-  const onView = (courseId) => {
-    const course = data.find(course => course._id === courseId) || null;
-    setSelectedCourse(course);
+  const onView = (withholdingId) => {
+    const withholding = data.find(withholding => withholding._id === withholdingId) || null;
+    setSelectedWithholding(withholding);
     setViewOnly(true)
     setStage('CREATE')
   }
 
   const onCreate = () => {
-    setSelectedCourse(null);
+    setSelectedWithholding(null);
     setStage('CREATE')
   }
   
   const onCancel = () => {
-    setSelectedCourse(null);
+    setSelectedWithholding(null);
     setViewOnly(false)
     reset()
     setStage('LIST')
@@ -78,7 +78,7 @@ export default function Courses() {
   return (
     <div className="px-4 h-full overflow-auto mt-4">
       <div className="w-full flex sticky top-0 z-10 bg-white rounded pb-4">
-        <h1 className="inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200">Cursos</h1>
+        <h1 className="inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200">Retenciones</h1>
         <Button variant="alternative" className="ml-auto" onClick={() => onCreate()}>Crear</Button>
       </div>
       {
@@ -106,24 +106,20 @@ export default function Courses() {
                     <thead>
                       <tr>
                         <th className="border-b dark:border-slate-600 font-medium p-4 pl-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Nombre</th>
-                        <th className="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Periodo</th>
-                        <th className="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Cuota</th>
                         <th className="border-b dark:border-slate-600 font-medium p-4 pr-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Acciones</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-800">
                       {
                         data.length ? 
-                          data.map(course => (
-                            <tr key={course._id}>
-                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400">{course.name}</td>
-                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{course.month + "/" + course.year}</td>
-                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{course.price}</td>
+                          data.map(withholding => (
+                            <tr key={withholding._id}>
+                              <td className="text-left border-b border-slate-100 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400">{withholding.name}</td>
                               <td className="text-left border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 w-10">
                                 <div className="flex gap-2">
-                                  <button className="flex items-center justify-center w-8 h-8" title="Ver detalle" onClick={() => onView(course._id)}><EyeIcon/></button>
-                                  <button className="flex items-center justify-center w-8 h-8" title="Editar" onClick={() => onEdit(course._id)}><EditIcon/></button>
-                                  <button className="flex items-center justify-center w-8 h-8" title="Eliminar" onClick={() => removeCourse(course._id)}><TrashIcon/></button>
+                                  <button className="flex items-center justify-center w-8 h-8" title="Ver detalle" onClick={() => onView(withholding._id)}><EyeIcon/></button>
+                                  <button className="flex items-center justify-center w-8 h-8" title="Editar" onClick={() => onEdit(withholding._id)}><EditIcon/></button>
+                                  <button className="flex items-center justify-center w-8 h-8" title="Eliminar" onClick={() => removeWithholding(withholding._id)}><TrashIcon/></button>
                                 </div>
                               </td>
                             </tr>
@@ -162,64 +158,11 @@ export default function Courses() {
                               <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Nombre:</label>
                               {
                                 viewOnly ? 
-                                <label className="text-slate-500 dark:text-slate-400 w-20">{selectedCourse?.name}</label>
+                                <label className="text-slate-500 dark:text-slate-400 w-20">{selectedWithholding?.name}</label>
                                 :
-                                <input type="text" defaultValue={selectedCourse?.name || ''} {...register("name", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400" />
+                                <input type="text" defaultValue={selectedWithholding?.name || ''} {...register("name", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400" />
                               }
                               {errors.name && <span className='px-2 text-red-500'>* Obligatorio</span>}
-                            </div>
-                          </td>
-                        </tr>
-                        {/* ================ */}
-                        <tr>
-                          <td>
-                            <div className="p-4 gap-2 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Periodo:</label>
-                              {
-                                viewOnly ? 
-                                <label className="text-slate-500 dark:text-slate-400 w-20">{selectedCourse?.month + "/" + selectedCourse.year}</label>
-                                :
-                                <>
-                                  <select defaultValue={selectedCourse?.month || ''} {...register("month", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">
-                                    <option value="" disabled>Seleccionar</option>
-                                    {
-                                      fill(Array(12), null).map((index, position) => {
-                                        return (
-                                          <option key={position + 1} value={position + 1}>{position + 1}</option>
-                                        )
-                                      })
-                                    }
-                                  </select>
-                                  <select defaultValue={selectedCourse?.year || ''} {...register("year", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">
-                                    <option value="" disabled>Seleccionar</option>
-                                    {
-                                      
-                                      fill(Array(4), null).map((index, position) => {
-                                        return (
-                                          <option key={currentYear + position} value={currentYear + position}>{currentYear + position}</option>
-                                        )
-                                      })
-                                    }
-                                  </select>
-                                </>
-                              }
-                              {errors.year && <span className='px-2 text-red-500'>* Obligatorio</span>}
-                              {errors.month && <span className='px-2 text-red-500'>* Obligatorio</span>}
-                            </div>
-                          </td>
-                        </tr>
-                        {/* ================ */}
-                        <tr>
-                          <td>
-                            <div className="p-4 gap-2 flex items-center">
-                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Cuota:</label>
-                              {
-                                viewOnly ? 
-                                <label className="text-slate-500 dark:text-slate-400 w-20">{selectedCourse?.price}</label>
-                                :
-                                <input type="text" defaultValue={selectedCourse?.price || ''} {...register("price", { required: true })} className="rounded border border-slate-200 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400" />
-                              }
-                              {errors.price && <span className='px-2 text-red-500'>* Obligatorio</span>}
                             </div>
                           </td>
                         </tr>

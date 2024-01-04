@@ -6,6 +6,7 @@ const userController     = require('../controllers/UserController');
 const studentController     = require('../controllers/StudentController');
 const insuranceController     = require('../controllers/InsuranceController');
 const courseController     = require('../controllers/CourseController');
+const withholdingController     = require('../controllers/WithholdingController');
 const billingController     = require('../controllers/BillingController');
 const utilsController     = require('../controllers/UtilsController');
 
@@ -23,6 +24,7 @@ router.get('/students/:studentId', (req, res, next) => studentController.getStud
 router.post('/students', (req, res, next) => studentController.createStudent(req, res, next));
 router.patch('/students/:studentId', (req, res, next) => studentController.getStudentByIdAndUpdate(req, res, next));
 router.delete('/students/:studentId', (req, res, next) => studentController.deleteStudentById(req, res, next));
+router.get('/full-students', (req, res, next) => studentController.getAllStaff(req, res, next));
 
 // INSURANCE
 router.get('/insurances', (req, res, next) => insuranceController.getInsurances(req, res, next));
@@ -37,6 +39,13 @@ router.get('/courses/:courseId', (req, res, next) => courseController.getCourseB
 router.post('/courses', (req, res, next) => courseController.createCourse(req, res, next));
 router.patch('/courses/:courseId', (req, res, next) => courseController.getCourseByIdAndUpdate(req, res, next));
 router.delete('/courses/:courseId', (req, res, next) => courseController.deleteCourseById(req, res, next));
+
+// WITHHOLDINGS
+router.get('/withholdings', (req, res, next) => withholdingController.getWithholdings(req, res, next));
+router.get('/withholdings/:withholdingId', (req, res, next) => withholdingController.getWithholdingById(req, res, next));
+router.post('/withholdings', (req, res, next) => withholdingController.createWithholding(req, res, next));
+router.patch('/withholdings/:withholdingId', (req, res, next) => withholdingController.getWithholdingByIdAndUpdate(req, res, next));
+router.delete('/withholdings/:withholdingId', (req, res, next) => withholdingController.deleteWithholdingById(req, res, next));
 
 // BILLING
 router.get('/billings', (req, res, next) => billingController.getBillings(req, res, next));

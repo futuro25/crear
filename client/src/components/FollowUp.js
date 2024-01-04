@@ -5,6 +5,7 @@ import useSWR from 'swr'
 import {useSWRConfig} from 'swr'
 import Button from "./common/Button";
 import { Dialog, DialogContent } from "./common/Dialog";
+import TableData from "./common/TableData";
 import { Pagination } from "./common/Pagination";
 import Spinner from "./common/Spinner";
 import {TrashIcon, ChecktIcon, EyeIcon, EditIcon, CloseIcon} from "./icons";
@@ -92,6 +93,49 @@ export default function Billings() {
             {/* ERROR... */}
           </div>
         )
+      }
+
+      {
+        stage === 'TEST' && (
+          <div className='border border-slate-200 rounded p-1'>
+            <table>
+              <thead>
+                <tr className="text-slate-400">
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Fecha</th>
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Nro de Factura</th>
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Periodo</th>
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Concepto</th>
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Estudiante</th>
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Importe</th>
+                  <th scope="col" className="capitalize font-bold px-6 py-4">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  data.length ?
+                    data.map((billing) => (
+                      <tr>
+                        <td data-label="Fecha" className="whitespace-nowrap px-6 py-4 font-medium">{moment(billing.rememberDate).format('DD-MM-YYYY')}</td>
+                        <td data-label="Nro de Factura" className="whitespace-nowrap px-6 py-4 font-medium">{billing.invoiceNumber}</td>
+                        <td data-label="Periodo" className="whitespace-nowrap px-6 py-4 font-medium">{billing.period}</td>
+                        <td data-label="Concepto" className="whitespace-nowrap px-6 py-4 font-medium">{billing.concept}</td>
+                        <td data-label="Estudiante" className="whitespace-nowrap px-6 py-4 font-medium">{billing.student}</td>
+                        <td data-label="Importe" className="whitespace-nowrap px-6 py-4 font-medium">${billing.invoiceAmount}</td>
+                        <td data-label="" className="whitespace-nowrap px-6 py-4 font-medium flex gap-4 items-center justify-center">
+                            <button className="flex items-center justify-center w-8 h-8" title="Editar" onClick={() => onEdit(billing._id)}><EditIcon/></button>
+                        </td>
+                      </tr>
+                    )
+                  ) : (
+                    <tr className="border-b last:border-b-0 dark:border-neutral-500">
+                      <td colSpan={7} className="whitespace-nowrap px-6 py-4 font-medium">Sin registros</td>
+                    </tr>
+                  )
+                }
+                </tbody>
+            </table>
+          </div>
+          )
       }
       {
         stage === 'LIST' && data && !isValidating && !isLoading && (

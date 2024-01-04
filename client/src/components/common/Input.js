@@ -63,7 +63,7 @@ export const Input = React.forwardRef(
         </label>
         <div className="relative">
           {!!leftElement && <div className="absolute top-1/2 left-0 ml-2 -translate-y-1/2">{leftElement}</div>}
-          <input className={`${inputStyles.className} ${className}`} {...props} ref={ref} />
+          <input autoComplete='false' className={`${inputStyles.className} ${className}`} {...props} ref={ref} />
           {!!rightElement && <div className="absolute top-1/2 right-0 mr-2 -translate-y-1/2">{rightElement}</div>}
         </div>
         {helperText && <p className={helperTextStyles.className}>{helperText}</p>}

@@ -24,7 +24,7 @@
     "node" : ">=16.0.0 <17.0.0"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "heroku-postbuild": "cd client && yarn --ignore-platform && yarn run build"
   }
 }
