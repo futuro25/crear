@@ -215,6 +215,12 @@ export default function Students() {
                     <table className="border-collapse table-fixed w-full text-sm bg-white">
                       <tbody>
                         {/* ================ */}
+                        {/* Información del alumno */}
+                        <tr className="bg-gray-200">
+                          <td colSpan="2">
+                            <h2 className="text-xl font-bold mb-4 text-left">Datos del alumno</h2>
+                          </td>
+                        </tr>
                         <tr>
                           <td>
                             {/* <div className="p-4 gap-4 flex items-center">
@@ -385,6 +391,164 @@ export default function Students() {
                             </div>
                           </td>
                         </tr>
+
+                        {/* ================ */}
+                        {/* Datos del primer padre/madre/tutor */}
+                        <tr className="bg-gray-200">
+                          <td colSpan="2">
+                            <h2 className="text-xl font-bold mb-4 text-left">Datos del primer padre/madre/tutor</h2>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            {/* Campos para el primer padre */}
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Nombre:</label>
+                              {
+                                viewOnly ? 
+                                  <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[0]?.name || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[0]?.name || ''}
+                                    {...register("firstParentName", { required: true })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                              {errors.firstParentName?.type === 'required' && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Apellido:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[0]?.lastName || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[0]?.lastName || ''}
+                                    {...register("firstParentLastName", { required: true })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                              {errors.firstParentLastName?.type === 'required' && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Teléfono:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[0]?.phone || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[0]?.phone || ''}
+                                    {...register("firstParentPhone", { required: true })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                              {errors.firstParentPhone?.type === 'required' && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Email:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[0]?.email || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[0]?.email || ''}
+                                    {...register("firstParentEmail", { required: true })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                              {errors.firstParentEmail?.type === 'required' && <span className='px-2 text-red-500'>* Obligatorio</span>}
+                            </div>
+                          </td>
+                        </tr>
+
+                        {/* Datos del segundo padre/madre/tutor */}
+                        <tr className="bg-gray-200">
+                          <td colSpan="2">
+                            <h2 className="text-xl font-bold mb-4 text-left">Datos del segundo padre/madre/tutor</h2>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            {/* Campos para el segundo padre */}
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Nombre:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[1]?.name || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[1]?.name || ''}
+                                    {...register("secondParentName", { required: false })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Apellido:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[1]?.lastName || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[1]?.lastName || ''}
+                                    {...register("secondParentLastName", { required: false })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Teléfono:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[1]?.phone || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[1]?.phone || ''}
+                                    {...register("secondParentPhone", { required: false })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2">
+                            <div className="p-4 gap-4 flex items-center">
+                              <label className="text-slate-500 dark:text-slate-400 w-20 font-bold">Email:</label>
+                              {
+                                viewOnly ? 
+                                   <label className="text-slate-500 dark:text-slate-400 w-20">{selectedStudent?.parents[1]?.email || ''}</label>
+                                : <input
+                                    type="text"
+                                    defaultValue={selectedStudent?.parents[1]?.email || ''}
+                                    {...register("secondParentEmail", { required: false })}
+                                    className="rounded border border-slate-200 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+                                  />
+                              }
+                            </div>
+                          </td>
+                        </tr>
+
                         {/* ================ */}
                         <tr>
                           <td>
