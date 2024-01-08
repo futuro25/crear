@@ -10,7 +10,7 @@ self.createInsurance = async (req, res) => {
       'name': req.body.name,
       'plan': req.body.plan,
       'contact': req.body.contact,
-      'cuit': req.body.contact,
+      'cuit': req.body.cuit,
       'address': req.body.address,
       'city': req.body.city,
       'category': req.body.category,
