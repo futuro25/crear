@@ -21,8 +21,10 @@ self.createStudent = async (req, res) => {
       "cudUrl": req.body.cudUrl,
       "cudDueDate": req.body.cudDueDate,
       "billingDue": req.body.billingDue,
-      "course": req.body.course
+      "course": req.body.course,
+      "parents": addParentsInfo(req.body)
     }
+
     const newStudent = await Student.create(student);
     await utilsController.createLog('Student created', JSON.stringify(newStudent));
     logger.info('create student', JSON.stringify(student))
@@ -33,6 +35,23 @@ self.createStudent = async (req, res) => {
   }
 };
 
+const addParentsInfo = (body) => {
+  return [
+    {
+      "name": body.firstParentName,
+      "lastName": body.firstParentLastName,
+      "phone": body.firstParentPhone,
+      "email": body.firstParentEmail
+    },
+    {
+      "name": body.secondParentName,
+      "lastName": body.secondParentLastName,
+      "phone": body.secondParentPhone,
+      "email": body.secondParentEmail
+    }
+  ];
+};
+
 self.getStudents = async (req, res) => {  
   try {
     const studentsUpdated = []
@@ -41,19 +60,20 @@ self.getStudents = async (req, res) => {
     for (const student of students) {
       studentsUpdated.push({
         ...student, 
-        healthInsuranceName: 'OSDE',
         _id: student._id,
         name: student.name,
-        course: student.course,
-        createdAt: student.createdAt,
-        cudDueDate: student.cudDueDate,
-        cudUrl: student.cudUrl,
-        deletedAt: student.deletedAt,
+        lastName: student.lastName,
         documentNumber: student.documentNumber,
         email: student.email,
+        course: student.course,
+        cudDueDate: student.cudDueDate,
+        cudUrl: student.cudUrl,
         healthInsurance: student.healthInsurance,
-        lastName: student.lastName,
+        healthInsuranceName: 'OSDE',
+        parents: student.parents,
+        createdAt: student.createdAt,
         updatedAt: student.updatedAt,
+        deletedAt: student.deletedAt
       })
     }
 
